@@ -2,3 +2,6 @@
 	path = spine-runtimes
 	url = https://github.com/EsotericSoftware/spine-runtimes.git
 	ignore = dirty
+[submodule "overlap2d-runtime-libgdx"]
+	path = overlap2d-runtime-libgdx
+	url = https://github.com/simoarpe/overlap2d-runtime-libgdx.git
