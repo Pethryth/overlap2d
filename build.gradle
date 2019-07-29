@@ -12,7 +12,6 @@ buildscript {
 
 
 allprojects {
-    apply plugin: "eclipse"
     apply plugin: "idea"
 
     version = '0.1.3'
@@ -132,15 +131,18 @@ sourceCompatibility = 1.8
 sourceSets {
     main {
         java {
-            srcDir 'overlap2d/src/'
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
         }
     }
     test {
         java {
-            srcDir 'overlap2d/test/java'
+            srcDir 'src/test/java'
         }
         resources {
-            srcDir 'overlap2d/test/resources'
+            srcDir 'src/test/resources'
         }
     }
 }
@@ -172,21 +174,6 @@ idea {
     project {
         languageLevel = sourceCompatibility
     }
-}
-
-task afterEclipseImport(description: "Post processing after project generation", group: "IDE") {
-    doLast {
-        def classpath = new XmlParser().parse(file(".classpath"))
-        new Node(classpath, "classpathentry", [kind: 'src', path: 'overlap2d/assets']);
-        def writer = new FileWriter(file(".classpath"))
-        def printer = new XmlNodePrinter(new PrintWriter(writer))
-        printer.setPreserveWhitespace(true)
-        printer.print(classpath)
-    }
-}
-
-tasks.eclipse.doLast {
-    delete ".project"
 }
 
 if (JavaVersion.current().isJava8Compatible()) {
