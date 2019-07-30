@@ -57,41 +57,35 @@ public class Main {
 
     private void startLoadingEditor() {
         //first, kill off the splash
-    	if (!(SystemUtils.IS_OS_MAC_OSX || SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_UNIX)) {
-    		splash.kill();
-    	}
+        if (!(SystemUtils.IS_OS_MAC_OSX || SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_UNIX)) {
+            splash.kill();
+        }
 
         Overlap2D overlap2D = new Overlap2D();
         Rectangle maximumWindowBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
         double width = maximumWindowBounds.getWidth();
         double height = maximumWindowBounds.getHeight();
 
+        LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+        config.title = "Overlap2D - v" + AppConfig.getInstance().version;
+        config.fullscreen = false;
+        config.resizable = true;
+        config.width = (int) (width);
+        config.height = (int) (height - height * .04);
+        config.backgroundFPS = 60;
+        mainFrame = new LwjglFrame(overlap2D, config);
         if (SystemUtils.IS_OS_MAC_OSX || SystemUtils.IS_OS_MAC) {
             System.setProperty("apple.laf.useScreenMenuBar", "true");
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Overlap2D");
-            JglfwApplicationConfiguration config = new JglfwApplicationConfiguration();
-            config.width = (int) (width);
-            config.height = (int) (height - height * .04);
-            config.backgroundFPS = 60;
-            config.title = "Overlap2D - v" + AppConfig.getInstance().version;
-            new JglfwApplication(overlap2D, config);
         } else {
-            LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-            config.title = "Overlap2D - v" + AppConfig.getInstance().version;
-            config.fullscreen = true;
-            config.resizable = false;
-            config.width = (int) (width);
-            config.height = (int) (height - height * .04);
-            config.backgroundFPS = 60;
-            mainFrame = new LwjglFrame(overlap2D, config);
             mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-            toggleVisible();
-
-            // subscribe to file dropping notifications, currently windows only
-            DropTarget dropTarget = new DropTarget(mainFrame, new FileDropListener());
         }
+        toggleVisible();
 
-        if(!SystemUtils.IS_OS_UNIX) {
+        // subscribe to file dropping notifications, currently windows only
+        DropTarget dropTarget = new DropTarget(mainFrame, new FileDropListener());
+
+        if (!SystemUtils.IS_OS_UNIX) {
             // no aesthetics for linux users I guess..
             setIcon();
         }
