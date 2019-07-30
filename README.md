@@ -1,6 +1,6 @@
 # overlap2d editor
 
-![logo](http://overlap2d.com/wp-content/uploads/2015/09/github_logo_small.jpg)
+![Overlap2d logo.](overlap2d/overlap2d/art/splash_textures/logo.png)
 
 [![Build Status](https://travis-ci.org/UnderwaterApps/overlap2d.svg?branch=master)](https://travis-ci.org/UnderwaterApps/overlap2d) [![Coverage Status](https://coveralls.io/repos/UnderwaterApps/overlap2d/badge.svg?branch=master&service=github&cache=1)](https://coveralls.io/github/UnderwaterApps/overlap2d?branch=master&cache=1) [![Project status](https://img.shields.io/badge/status-active-brightgreen.svg)](#status)
 
