@@ -45,7 +45,7 @@ public class SplashScreen extends ApplicationAdapter {
     private Label percent;
 
     public interface SplashListener {
-        public void loadingComplete();
+        void loadingComplete();
     }
 
     public SplashListener listener;
