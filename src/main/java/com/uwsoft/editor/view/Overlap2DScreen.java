@@ -92,6 +92,7 @@ public class Overlap2DScreen implements Screen, InputProcessor {
             engine.update(deltaTime);
         }
 
+        uiStage.getViewport().apply();
         uiStage.act(deltaTime);
         uiStage.draw();
     }
