@@ -79,14 +79,13 @@ public class Overlap2DScreen implements Screen, InputProcessor {
         if (paused) {
             return;
         }
-        GL20 gl = Gdx.gl;
-        gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
-        gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if(isDrawingBgLogo) {
             batch.begin();
             batch.setColor(1, 1, 1, 0.12f);
-            batch.draw(bgLogo, screenSize.x/2 - bgLogo.getWidth()/2, screenSize.y/2 - bgLogo.getHeight()/2);
+            batch.draw(bgLogo, screenSize.x/2 - bgLogo.getWidth()/2f, screenSize.y/2 - bgLogo.getHeight()/2f);
             batch.end();
         } else {
             if (sandboxBackUI != null) sandboxBackUI.render(deltaTime);
@@ -114,11 +113,12 @@ public class Overlap2DScreen implements Screen, InputProcessor {
 
     @Override
     public void pause() {
+        paused = true;
     }
 
     @Override
     public void resume() {
-
+        paused = false;
     }
 
     @Override
@@ -161,9 +161,13 @@ public class Overlap2DScreen implements Screen, InputProcessor {
 
     @Override
     public void resize(int width, int height) {
+        // See https://github.com/libgdx/libgdx/issues/3673#issuecomment-177606278
+        if (width == 0 && height == 0) return;
+
         uiStage.resize(width, height);
+
         if(Sandbox.getInstance().getViewport() != null) {
-            Sandbox.getInstance().getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            Sandbox.getInstance().getViewport().update(width, height, true);
         }
     }
 

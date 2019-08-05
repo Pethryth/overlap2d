@@ -18,7 +18,7 @@
 
 package com.uwsoft.editor;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Align;
 import com.commons.MsgAPI;
@@ -26,7 +26,7 @@ import com.kotcrab.vis.ui.VisUI;
 import com.puremvc.patterns.proxy.Proxy;
 import com.uwsoft.editor.proxy.EditorTextureManager;
 
-public class Overlap2D extends ApplicationAdapter implements Proxy {
+public class Overlap2D implements Proxy, ApplicationListener {
     private static final String TAG = Overlap2D.class.getCanonicalName();
     public static final String NAME = TAG;
 
@@ -46,23 +46,27 @@ public class Overlap2D extends ApplicationAdapter implements Proxy {
         sendNotification(MsgAPI.CREATE);
     }
 
-
+    @Override
     public void pause() {
         sendNotification(MsgAPI.PAUSE);
     }
 
+    @Override
     public void resume() {
         sendNotification(MsgAPI.RESUME);
     }
 
+    @Override
     public void render() {
         sendNotification(MsgAPI.RENDER, Gdx.graphics.getDeltaTime());
     }
 
+    @Override
     public void resize(int width, int height) {
         sendNotification(MsgAPI.RESIZE, new int[]{width, height});
     }
 
+    @Override
     public void dispose() {
         sendNotification(MsgAPI.DISPOSE);
         VisUI.dispose();

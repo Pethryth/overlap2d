@@ -43,6 +43,8 @@ public class UIStage extends Stage {
     public UIStage() {
         super(new ScreenViewport(), new PolygonSpriteBatch());
 
+        getViewport().getCamera().position.setZero();
+
         facade = Overlap2DFacade.getInstance();
 
         //dummy target is basically the target of drop of items from resoruce panel

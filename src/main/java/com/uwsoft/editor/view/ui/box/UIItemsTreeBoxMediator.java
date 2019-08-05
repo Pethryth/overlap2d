@@ -71,9 +71,6 @@ public class UIItemsTreeBoxMediator extends PanelMediator<UIItemsTreeBox> {
                 viewComponent.init(rootEntity);
                 break;
             case MsgAPI.NEW_ITEM_ADDED:
-                rootEntity = sandbox.getRootEntity();
-                viewComponent.init(rootEntity);
-                break;
             case MsgAPI.DELETE_ITEMS_COMMAND_DONE:
                 rootEntity = sandbox.getRootEntity();
                 viewComponent.init(rootEntity);
