@@ -74,9 +74,7 @@ public class Sandbox {
 
     private Entity currentViewingEntity;
 
-    /**
-     * this part contains legacy params that need to be removed one by one
-     */
+    /** This part contains legacy params that need to be removed one by one. */
     public int currTransformType = -1;
     public Entity currTransformHost;
     public boolean isResizing = false;
@@ -93,54 +91,46 @@ public class Sandbox {
     private ProjectManager projectManager;
     private ResourceManager resourceManager;
     
-    
     public PixelRect selectionRec;
-    //public Group mainBox = new Group();
-    //public SandboxUI ui;
-    //public Group frontUI;
 
     private SceneLoader sceneLoader;
-	private Array<InputListener> listeners = new Array<InputListener>(1);
-
-
-    /**
-     * end of shitty part
-     */
+	private Array<InputListener> listeners = new Array<>(1);
+    /** End of shitty part. */
 
 
     private Sandbox() {
+        init();
     }
 
+    /**
+     * The instance gets created only when it is called for first time.
+     * Lazy-loading
+     */
     public synchronized static Sandbox getInstance() {
-        /*
-         * The instance gets created only when it is called for first time.
-		 * Lazy-loading
-		 */
         if (instance == null) {
             instance = new Sandbox();
-            instance.init();
         }
 
         return instance;
     }
 
     private void init() {
-    	facade = Overlap2DFacade.getInstance();
-    	 projectManager = facade.retrieveProxy(ProjectManager.NAME);
-         resourceManager = facade.retrieveProxy(ResourceManager.NAME);
+        facade = Overlap2DFacade.getInstance();
+        projectManager = facade.retrieveProxy(ProjectManager.NAME);
+        resourceManager = facade.retrieveProxy(ResourceManager.NAME);
 
         UIStageMediator uiStageMediator = facade.retrieveMediator(UIStageMediator.NAME);
         uiStage = uiStageMediator.getViewComponent();
 
-		sceneLoader = new SceneLoader(resourceManager);
+        sceneLoader = new SceneLoader(resourceManager);
         // adding spine as external component
         sceneLoader.injectExternalItemType(new SpineItemType());
-        
+
         //Remove Physics System and add Adjusting System for box2d objects to follow items and stop world tick
         sceneLoader.engine.removeSystem(sceneLoader.engine.getSystem(PhysicsSystem.class));
         sceneLoader.engine.addSystem(new PhysicsAdjustSystem(sceneLoader.world));
         sceneLoader.engine.getSystem(Overlap2dRenderer.class).setPhysicsOn(false);
-        
+
         sceneControl = new SceneControlMediator(sceneLoader);
         itemControl = new ItemControlMediator(sceneControl);
 
