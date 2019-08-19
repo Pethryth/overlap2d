@@ -47,7 +47,6 @@ public class EntityUtils {
 
     public static Array<Integer> getEntityId(Iterable<Entity> entities) {
         Array<Integer> entityIds = new Array<>();
-        int iterator = 0;
         for(Entity entity: entities) {
             MainItemComponent mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
             entityIds.add(mainItemComponent.uniqueId);
