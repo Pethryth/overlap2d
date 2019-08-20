@@ -2,8 +2,8 @@ package com.runner;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.jglfw.JglfwApplication;
-import com.badlogic.gdx.backends.jglfw.JglfwApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.kotcrab.vis.ui.VisUI;
 import com.runner.exception.LibgdxInitException;
 import com.runner.util.ConditionWaiter;
@@ -33,13 +33,13 @@ public class LibgdxRunner extends BlockJUnit4ClassRunner {
 
     private void initApplication() {
         try {
-            JglfwApplicationConfiguration cfg = new JglfwApplicationConfiguration();
-            cfg.preferencesLocation = String.format("tmp/%d/.prefs/", random.nextLong());
+            LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
+            cfg.preferencesDirectory = String.format("tmp/%d/.prefs/", random.nextLong());
             cfg.title = "Libgdx Runner";
             cfg.width = 1;
             cfg.height = 1;
             cfg.forceExit = true;
-            new JglfwApplication(new TestApplicationListener(), cfg);
+            new LwjglApplication(new TestApplicationListener(), cfg);
             ConditionWaiter.wait(() -> Gdx.files != null, "Jglfw init failed.", 10);
             prefs = new File(Gdx.files.getExternalStoragePath(), "tmp/");
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -81,9 +81,7 @@ public class LibgdxRunner extends BlockJUnit4ClassRunner {
                 }
                 running.set(false);
             });
-            ConditionWaiter.wait(() -> !running.get(), description, 30, () -> {
-                closeGdxApplication();
-            });
+            ConditionWaiter.wait(() -> !running.get(), description, 30, this::closeGdxApplication);
         } else {
             runLeaf(methodBlock(method), description, notifier);
         }
