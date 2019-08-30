@@ -18,6 +18,7 @@
 
 package com.uwsoft.editor.view.ui.box;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
@@ -109,21 +110,17 @@ public class UILayerBox extends UICollapsibleBox {
         });
         dragAndDrop = new DragAndDrop();
 
-
-
         createCollapsibleWidget(contentTable);
     }
 
-    public void enableDraggingInEditedSlot() {
-        if(sourceInEdition != null)
-        {
+    private void enableDraggingInEditedSlot() {
+        if(sourceInEdition != null) {
             dragAndDrop.addSource(sourceInEdition);
             sourceInEdition = null;
         }
     }
-    public void disableDraggingInEditedSlot() {
-        if(sourceInEdition != null)
-        {
+    private void disableDraggingInEditedSlot() {
+        if(sourceInEdition != null) {
             dragAndDrop.removeSource(sourceInEdition);
         }
     }
@@ -157,6 +154,7 @@ public class UILayerBox extends UICollapsibleBox {
         UILayerItemSlot slot = rows.get(rows.size-1-index);
 
         clearSelection();
+        currentSelectedLayerIndex = index;
         slot.getUiLayerItem().setSelected(true);
     }
 
@@ -165,7 +163,7 @@ public class UILayerBox extends UICollapsibleBox {
         UILayerItem item = new UILayerItem(itemVO, itemSlot);
         layersTable.add(itemSlot).left().expandX().fillX();
         layersTable.row().padTop(1);
-        SlotSource sourceItem = new SlotSource(item);
+        SlotSource sourceItem = new SlotSource(item, this);
         dragAndDrop.addSource(sourceItem);
         dragAndDrop.addTarget(new SlotTarget(itemSlot));
         dragAndDrop.setDragActorPosition(0, 0);
@@ -174,15 +172,10 @@ public class UILayerBox extends UICollapsibleBox {
         itemSlot.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-
                 VisTextField textField = itemSlot.getUiLayerItem().getNameField();
-
-                if(sourceInEdition != null)
-                {
-                    VisTextField prevField = ((UILayerItem) sourceInEdition.getActor()).getNameField();
-                    if(textField != prevField)
-                    {
+                if(sourceInEdition != null) {
+                    VisTextField prevField = sourceInEdition.getActor().getNameField();
+                    if(textField != prevField) {
                         prevField.clearSelection();
                         prevField.setDisabled(true);
                         enableDraggingInEditedSlot();
@@ -195,9 +188,8 @@ public class UILayerBox extends UICollapsibleBox {
 
                 facade.sendNotification(LAYER_ROW_CLICKED, itemSlot.getUiLayerItem());
 
-                // Change name mode if double click
-                if(getTapCount() == 2 && !itemSlot.getUiLayerItem().getData().isLocked)
-                {
+                // Change name mode on double click.
+                if(getTapCount() == 2 && !itemSlot.getUiLayerItem().getData().isLocked) {
                     sourceInEdition = sourceItem;
                     textField.setDisabled(false);
                     textField.focusField();
@@ -209,60 +201,75 @@ public class UILayerBox extends UICollapsibleBox {
     }
 
     private static class SlotSource extends DragAndDrop.Source {
-
-
-        public SlotSource(UILayerItem item) {
+        UILayerBox uiLayerBox;
+        public SlotSource(UILayerItem item, UILayerBox parent) {
             super(item);
+            this.uiLayerBox = parent;
+        }
+
+        public UILayerItem getActor() {
+            return (UILayerItem) super.getActor();
         }
 
         @Override
         public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
+            getActor().getItemSlot().setColor(Color.BLUE);
             DragAndDrop.Payload payload = new DragAndDrop.Payload();
-            payload.setDragActor(new UILayerItemDragActor((UILayerItem) getActor()));
+            payload.setDragActor(new UILayerItemDragActor(getActor()));
             return payload;
         }
 
         @Override
         public void dragStop(InputEvent event, float x, float y, int pointer, DragAndDrop.Payload payload, DragAndDrop.Target target) {
-            UILayerItem uiLayerItemActor = (UILayerItem) getActor();
-            UILayerItemSlot uiLayerItemSlot = uiLayerItemActor.getItemSlot();
+            UILayerItem uiLayerItemSource = getActor();
+            UILayerItemSlot uiLayerItemSlotSource = uiLayerItemSource.getItemSlot();
             if (target != null) {
                 UILayerItemSlot uiLayerItemSlotTarget = (UILayerItemSlot) target.getActor();
+
+                boolean targetSelectionStatus = uiLayerItemSlotTarget.uiLayerItem.isSelected();
+                boolean sourceSelectionStatus = uiLayerItemSlotSource.uiLayerItem.isSelected();
+
                 UILayerItem uiLayerItemTarget = uiLayerItemSlotTarget.getUiLayerItem();
-                //
-                uiLayerItemActor.setItemSlot(uiLayerItemSlotTarget);
-                uiLayerItemTarget.setItemSlot(uiLayerItemSlot);
+                uiLayerItemSource.setItemSlot(uiLayerItemSlotTarget);
+                uiLayerItemTarget.setItemSlot(uiLayerItemSlotSource);
 
-                String sourceLayer = uiLayerItemActor.getLayerName();
+                // Source
+                String sourceLayer = uiLayerItemSource.getLayerName();
+                // Target
                 String targetLayer = uiLayerItemTarget.getLayerName();
-                String[] notificationPayload = {sourceLayer, targetLayer};
 
+                if (targetSelectionStatus) {
+                    uiLayerBox.currentSelectedLayerIndex = uiLayerBox.rows.size - uiLayerBox.rows.indexOf(uiLayerItemSlotSource, true) - 1;
+                } else if (sourceSelectionStatus) {
+                    uiLayerBox.currentSelectedLayerIndex = uiLayerBox.rows.size - uiLayerBox.rows.indexOf(uiLayerItemSlotTarget, true) - 1;
+                }
+
+                // Send notification with the two layers to swap.
+                // TODO - change from swap to repositioning source above target.
+                String[] notificationPayload = {sourceLayer, targetLayer};
                 Overlap2DFacade.getInstance().sendNotification(LAYER_DROPPED, notificationPayload);
-            } else {
-                uiLayerItemActor.setItemSlot(uiLayerItemSlot);
             }
         }
     }
 
     private static class SlotTarget extends DragAndDrop.Target {
-
-        //private Slot targetSlot;
-
         public SlotTarget(UILayerItemSlot item) {
             super(item);
         }
 
+        public UILayerItemSlot getActor() {
+            return (UILayerItemSlot) super.getActor();
+        }
+
         @Override
         public boolean drag(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
-//            Slot payloadSlot = (Slot) payload.getObject();
-//            // if (targetSlot.getItem() == payloadSlot.getItem() ||
-//            // targetSlot.getItem() == null) {
-//            getActor().setColor(Color.BLUE);
+            UILayerItem sourceActor = (UILayerItem) source.getActor();
+            if (getActor().uiLayerItem.layerData.layerName.equals(sourceActor.layerData.layerName)) {
+                return false;
+            }
+
+            getActor().setColor(Color.DARK_GRAY);
             return true;
-            // } else {
-            // getActor().setColor(Color.DARK_GRAY);
-            // return false;
-            // }
         }
 
         @Override
@@ -272,13 +279,15 @@ public class UILayerBox extends UICollapsibleBox {
 
         @Override
         public void reset(DragAndDrop.Source source, DragAndDrop.Payload payload) {
-//            getActor().setColor(Color.LIGHT_GRAY);
+            UILayerItem sourceActor = (UILayerItem) source.getActor();
+            if (!getActor().uiLayerItem.layerData.layerName.equals(sourceActor.layerData.layerName)) {
+                getActor().setColor(Color.WHITE);
+            }
         }
 
     }
 
     public static class UILayerItemDragActor extends VisTable {
-
         public String layerName;
 
         public UILayerItemDragActor(UILayerItem actor) {
@@ -330,13 +339,12 @@ public class UILayerBox extends UICollapsibleBox {
 
         @Override
         protected UILayerItemSlot clone() throws CloneNotSupportedException {
+            super.clone();
             return new UILayerItemSlot(this);
         }
     }
 
     public class UILayerItem extends VisTable {
-
-
         private final LayerItemVO layerData;
         private UILayerItemSlot itemSlot;
         private boolean selected;
@@ -411,7 +419,6 @@ public class UILayerBox extends UICollapsibleBox {
         }
 
         private class CheckClickListener extends ClickListener {
-
             final VisImageButton owner;
             final String eventOnUnchecking;
             final String eventOnChecking;
@@ -429,13 +436,9 @@ public class UILayerBox extends UICollapsibleBox {
                 facade.sendNotification(sendEvent, itemSlot.getUiLayerItem());
             }
         }
-
-
     }
-
 
     public Array<UILayerItemSlot> getLayerSlots() {
         return rows;
     }
-
 }
