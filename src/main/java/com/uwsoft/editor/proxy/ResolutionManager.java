@@ -355,7 +355,7 @@ public class ResolutionManager extends BaseProxy {
 
         for (FileHandle entry : sourceDir.list()) {
             String filename = entry.file().getName();
-            String extension = filename.substring(filename.lastIndexOf(".") + 1, filename.length()).toLowerCase();
+            String extension = filename.substring(filename.lastIndexOf(".") + 1).toLowerCase();
             if (extension.equals("png")) {
                 tp.addImage(entry.file());
             }

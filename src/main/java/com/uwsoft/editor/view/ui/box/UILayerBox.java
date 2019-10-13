@@ -213,6 +213,8 @@ public class UILayerBox extends UICollapsibleBox {
 
         @Override
         public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
+            // Highlight the currently dragged layer with a blue tone
+            // so it's easier to recognize.
             getActor().getItemSlot().setColor(Color.BLUE);
             DragAndDrop.Payload payload = new DragAndDrop.Payload();
             payload.setDragActor(new UILayerItemDragActor(getActor()));
@@ -223,6 +225,8 @@ public class UILayerBox extends UICollapsibleBox {
         public void dragStop(InputEvent event, float x, float y, int pointer, DragAndDrop.Payload payload, DragAndDrop.Target target) {
             UILayerItem uiLayerItemSource = getActor();
             UILayerItemSlot uiLayerItemSlotSource = uiLayerItemSource.getItemSlot();
+            // Tint back with white the previously blue-selected layer.
+            uiLayerItemSlotSource.setColor(Color.WHITE);
             if (target != null) {
                 UILayerItemSlot uiLayerItemSlotTarget = (UILayerItemSlot) target.getActor();
 

@@ -76,9 +76,6 @@ public class Overlap2DScreen implements Screen, InputProcessor {
 
     @Override
     public void render(float deltaTime) {
-        if (paused) {
-            return;
-        }
         Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 

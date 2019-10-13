@@ -20,7 +20,6 @@ package com.uwsoft.editor.view.ui.properties.panels;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.Array;
-import com.esotericsoftware.spine.Animation;
 import com.uwsoft.editor.extension.spine.SpineObjectComponent;
 import com.uwsoft.editor.view.ui.properties.UIItemPropertiesMediator;
 import com.uwsoft.editor.renderer.components.SpineDataComponent;
@@ -47,9 +46,7 @@ public class UISpineAnimationItemPropertiesMediator extends UIItemPropertiesMedi
         spineDataComponent = ComponentRetriever.get(entity, SpineDataComponent.class);
     	
         Array<String> animations = new Array<>();
-        for (Animation animation : spineObjectComponent.getAnimations()) {
-            animations.add(animation.getName());
-        }
+        animations.addAll(spineObjectComponent.getAnimationNames());
 
         viewComponent.setAnimations(animations);
         viewComponent.setSelectedAnimation(spineDataComponent.currentAnimationName);

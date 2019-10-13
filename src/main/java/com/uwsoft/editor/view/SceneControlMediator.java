@@ -18,7 +18,7 @@
 
 package com.uwsoft.editor.view;
 
-import box2dLight.RayHandler;
+import com.box2dLight.RayHandler;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;

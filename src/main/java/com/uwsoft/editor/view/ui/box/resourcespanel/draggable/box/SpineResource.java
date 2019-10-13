@@ -23,9 +23,9 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.commons.ResourcePayloadObject;
 import com.uwsoft.editor.Overlap2DFacade;
+import com.uwsoft.editor.extension.spine.view.ui.widget.actors.SpineActor;
 import com.uwsoft.editor.renderer.data.SpineVO;
 import com.uwsoft.editor.view.ui.box.UIResourcesBoxMediator;
-import com.uwsoft.editor.view.ui.widget.actors.SpineActor;
 
 /**
  * Created by azakhary on 7/3/2014.
@@ -68,7 +68,7 @@ public class SpineResource extends BoxItemResource {
             animThumb.setY((getHeight() - animThumb.getHeight()) / 2);
         }
 
-        animThumb.setAnimation(animThumb.skeletonData.getAnimations().get(0).getName());
+        animThumb.setFirstAnimation();
 
         addListener(new ClickListener() {
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {

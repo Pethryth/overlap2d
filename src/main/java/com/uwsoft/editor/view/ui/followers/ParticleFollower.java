@@ -22,6 +22,8 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.kotcrab.vis.ui.VisUI;
+import com.uwsoft.editor.renderer.components.particle.ParticleComponent;
+import com.uwsoft.editor.renderer.utils.ComponentRetriever;
 
 /**
  * Created by azakhary on 5/20/2015.
@@ -36,14 +38,23 @@ public class ParticleFollower extends BasicFollower {
     public void create() {
         Image icon = new Image(VisUI.getSkin().getDrawable("icon-particle-over"));
         icon.setTouchable(Touchable.disabled);
-        icon.setX(-icon.getWidth()/2);
-        icon.setY(-icon.getHeight()/2);
+        icon.setX(-icon.getWidth() / 2);
+        icon.setY(-icon.getHeight() / 2);
         icon.getColor().a = 0.3f;
         addActor(icon);
     }
 
     @Override
+    public void update() {
+        super.update();
+        ParticleComponent particleComponent = ComponentRetriever.get(entity, ParticleComponent.class);
+        if (particleComponent != null) {
+            particleComponent.scaleEffect(transformComponent.scaleX);
+        }
+    }
+
+    @Override
     public void hide() {
-        // you cannot hide particle follower
+        // Particle followers can't be hidden.
     }
 }

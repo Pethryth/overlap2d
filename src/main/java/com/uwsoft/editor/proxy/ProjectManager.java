@@ -50,7 +50,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -558,7 +561,7 @@ public class ProjectManager extends BaseProxy {
         return imgHandles;
     }
 
-    private boolean addParticleEffectImages(FileHandle fileHandle, Array<FileHandle> imgs) {
+    private boolean addParticleEffectImages(FileHandle fileHandle, Array<FileHandle> images) {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(fileHandle.read()), 64);
             while (true) {
@@ -570,12 +573,15 @@ public class ProjectManager extends BaseProxy {
                         // then it's a path let's see if exists.
                         File tmp = new File(line);
                         if (tmp.exists()) {
-                            imgs.add(new FileHandle(tmp));
+                            images.add(new FileHandle(tmp));
                         } else {
                             line = FilenameUtils.getBaseName(line) + ".png";
+                            if (line.contains("_")) {
+                                throw new IllegalArgumentException("Particle effect images cannot contain underscores because Texture Packer does not support them. Image filename: " + line);
+                            }
                             File file = new File(FilenameUtils.getFullPath(fileHandle.path()) + line);
                             if (file.exists()) {
-                                imgs.add(new FileHandle(file));
+                                images.add(new FileHandle(file));
                             } else {
                                 return false;
                             }
@@ -583,7 +589,7 @@ public class ProjectManager extends BaseProxy {
                     } else {
                         File file = new File(FilenameUtils.getFullPath(fileHandle.path()) + line);
                         if (file.exists()) {
-                            imgs.add(new FileHandle(file));
+                            images.add(new FileHandle(file));
                         } else {
                             return false;
                         }
@@ -606,27 +612,30 @@ public class ProjectManager extends BaseProxy {
         currentPercent = 0;
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            Array<FileHandle> imgs = new Array<>();
+            Array<FileHandle> images = new Array<>();
             for (FileHandle fileHandle : fileHandles) {
                 if (!fileHandle.isDirectory() && fileHandle.exists()) {
                     try {
                         //copy images
-                        boolean allImagesFound = addParticleEffectImages(fileHandle, imgs);
+                        boolean allImagesFound = addParticleEffectImages(fileHandle, images);
                         if (allImagesFound) {
                             // copy the fileHandle
                             String newName = fileHandle.name();
                             File target = new File(targetPath + "/" + newName);
                             FileUtils.copyFile(fileHandle.file(), target);
                         }
-                    } catch (Exception e) {
-                        //e.printStackTrace();
-                        //System.out.println("Error importing particles");
-                        //showError("Error importing particles \n Particle Atals not found \n Please place particle atlas and particle effect fileHandle in the same directory ");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Error importing particles.");
+                        throw e;
+
+                    } catch (IOException e) {
+                        System.out.println("Error importing particles.");
+                        e.printStackTrace();
                     }
                 }
             }
-            if (imgs.size > 0) {
-                copyImageFilesForAllResolutionsIntoProject(imgs, false);
+            if (images.size > 0) {
+                copyImageFilesForAllResolutionsIntoProject(images, false);
             }
             ResolutionManager resolutionManager = facade.retrieveProxy(ResolutionManager.NAME);
             resolutionManager.rePackProjectImagesForAllResolutions();
@@ -737,6 +746,11 @@ public class ProjectManager extends BaseProxy {
                     newFile.mkdir();
                 }
 
+                // The filename should not be changed because the particle effects contain the name in their
+                // configuration. Unfortunately though, the texture packer does not support the underscore because
+                // any underscore in the texture packer is considered an image index. More info here:
+                // https://github.com/libgdx/libgdx/wiki/Texture-packer#image-indexes
+                // So, long story short, we MUST remove the underscore.
                 ImageIO.write(bufferedImage, "png", new File(targetPath + "/" + handle.name().replace("_", "")));
             } catch (IOException e) {
                 e.printStackTrace();

@@ -24,8 +24,10 @@ import com.puremvc.patterns.observer.Notification;
 import com.uwsoft.editor.controller.commands.resource.DeleteSpineAnimation;
 import com.uwsoft.editor.controller.commands.resource.DeleteSpriteAnimation;
 import com.uwsoft.editor.controller.commands.resource.DeleteSpriterAnimation;
+import com.uwsoft.editor.extension.spine.SpineItemType;
 import com.uwsoft.editor.factory.ItemFactory;
 import com.uwsoft.editor.proxy.ResourceManager;
+import com.uwsoft.editor.renderer.factory.EntityFactory;
 import com.uwsoft.editor.view.stage.Sandbox;
 import com.uwsoft.editor.view.ui.box.resourcespanel.draggable.DraggableResource;
 import com.uwsoft.editor.view.ui.box.resourcespanel.draggable.DraggableResourceView;
@@ -82,7 +84,9 @@ public class UIAnimationsTabMediator extends UIResourcesTabMediator<UIAnimations
         Sandbox sandbox = Sandbox.getInstance();
         ResourceManager resourceManager = facade.retrieveProxy(ResourceManager.NAME);
 
-        createAnimationResources(resourceManager.getProjectSpineAnimationsList().keySet(), SpineResource.class, ItemFactory.get()::createSpineAnimation, searchText);
+        if (new SpineItemType().getTypeId() == EntityFactory.SPINE_TYPE) {
+            createAnimationResources(resourceManager.getProjectSpineAnimationsList().keySet(), SpineResource.class, ItemFactory.get()::createSpineAnimation, searchText);
+        }
         createAnimationResources(resourceManager.getProjectSpriteAnimationsList().keySet(), SpriteResource.class, ItemFactory.get()::createSpriteAnimation, searchText);
         createAnimationResources(resourceManager.getProjectSpriterAnimationsList().keySet(), SpriterResource.class, ItemFactory.get()::createSpriterAnimation, searchText);
         viewComponent.setThumbnailBoxes(animationBoxes);
